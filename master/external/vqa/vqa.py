@@ -46,8 +46,8 @@ class VQA:
 
     def createIndex(self):
         # create index
-        import pdb; pdb.set_trace()
-        print("Crossed pdb!")
+        # import pdb; pdb.set_trace()
+        # print("Crossed pdb!")
         print('creating index...')
         imgToQA = {ann['image_id']: [] for ann in self.dataset['annotations']}
         qa = {ann['question_id']: [] for ann in self.dataset['annotations']}
