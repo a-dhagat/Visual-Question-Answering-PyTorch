@@ -55,6 +55,7 @@ class ExperimentRunnerBase(object):
         # len_dataloader = np.arange(len(self._val_dataset_loader))
         # random_data = np.random.choice(len_dataloader, 1000, replace=False)
         # import ipdb; ipdb.set_trace()
+        validate_dataset = np.random.choice(np.arange(20),1)
         count = 0
         iters = 0
         for batch_id, batch_data in enumerate(self._val_dataset_loader):
@@ -82,12 +83,9 @@ class ExperimentRunnerBase(object):
             # for pred_ans, gt_ans in zip(predicted_answer, ground_truth_answer):
             #     if pred_ans == gt_ans and gt_ans is not 5216:
             #         count += 1
-
-
-
         ############
 
-            if self._log_validation:
+            if self._log_validation and iters==validate_dataset:
                 ############ 2.9 TODO
                 # you probably want to plot something here
                 # if iters==1:
@@ -113,13 +111,15 @@ class ExperimentRunnerBase(object):
                 # pass
 
                 ############
+            iters += 1
+
         accuracy = count/(self._batch_size*len(self._val_dataset_loader))
         # accuracy = count/(self._batch_size*20)
         return accuracy
         # raise NotImplementedError()
 
     def train(self):
-        writer = SummaryWriter('./runs/run_full')
+        writer = SummaryWriter('./runs/run_full_2')
         self.loss_obj = nn.CrossEntropyLoss(size_average=True).cuda()
         for epoch in range(self._num_epochs):
             num_batches = len(self._train_dataset_loader)
@@ -157,7 +157,7 @@ class ExperimentRunnerBase(object):
                     ############ 2.9 TODO
                     # you probably want to plot something here
                     writer.add_scalar('train_loss: ',loss.item(), current_step)
-                    torch.save(self._model.state_dict(), "./saved_model_full/full_model_at_epoch_" + str(epoch) + "_currentstep_" + str(current_step) + ".pth")
+                    torch.save(self._model.state_dict(), "./saved_model_full_2/full2_model_at_epoch_" + str(epoch) + "_currentstep_" + str(current_step) + ".pth")
 
                     ############
 
