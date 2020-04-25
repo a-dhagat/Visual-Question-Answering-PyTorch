@@ -1,6 +1,7 @@
 from student_code.simple_baseline_net import SimpleBaselineNet
 from student_code.experiment_runner_base import ExperimentRunnerBase
 from student_code.vqa_dataset import VqaDataset
+from torchvision import transforms
 
 
 class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
@@ -13,7 +14,11 @@ class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
 
         ############ 2.3 TODO: set up transform
 
-        transform = None
+        transform = transforms.Compose([
+                                        transforms.Resize((224,224)),
+                                        transforms.ToTensor(),
+                                        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+                                        ])
 
         ############
 
@@ -23,8 +28,8 @@ class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
                                    image_filename_pattern="COCO_train2014_{}.jpg",
                                    transform=transform,
                                    ############ 2.4 TODO: fill in the arguments
-                                   question_word_to_id_map='change this argument',
-                                   answer_to_id_map='change this argument',
+                                   question_word_to_id_map=None,
+                                   answer_to_id_map=None,
                                    ############
                                    )
         val_dataset = VqaDataset(image_dir=test_image_dir,
@@ -33,8 +38,8 @@ class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
                                  image_filename_pattern="COCO_val2014_{}.jpg",
                                  transform=transform,
                                  ############ 2.4 TODO: fill in the arguments
-                                 question_word_to_id_map='change this argument',
-                                 answer_to_id_map='change this argument',
+                                 question_word_to_id_map=train_dataset.question_word_to_id_map,
+                                 answer_to_id_map=train_dataset.answer_to_id_map,
                                  ############
                                  )
 
