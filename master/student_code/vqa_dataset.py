@@ -54,6 +54,7 @@ class VqaDataset(Dataset):
         # import ipdb; ipdb.set_trace()
 
         # Create the question map if necessary
+        # self.question_word_to_id_map = {}
         if question_word_to_id_map is None:
             ############ 1.6 TODO
             question_sentences = []
@@ -64,10 +65,12 @@ class VqaDataset(Dataset):
 
             word_list = self._create_word_list(question_sentences)
             self.question_word_to_id_map = self._create_id_map(word_list, question_word_list_length)
+            print("Created new question_to_id_map")
             ############
             # raise NotImplementedError()
         else:
             self.question_word_to_id_map = question_word_to_id_map
+            print("Reused question_to_id_map")
 
         # Create the answer map if necessary
         if answer_to_id_map is None:
@@ -79,10 +82,12 @@ class VqaDataset(Dataset):
                     answer_sentence_list.append(item['answer'])
             
             self.answer_to_id_map = self._create_id_map(answer_sentence_list, answer_list_length)
+            print("Created new answer_to_id_map")
             ############
             # raise NotImplementedError()
         else:
             self.answer_to_id_map = answer_to_id_map
+            print("Reused answer_to_id_map")
 
         # import pdb; pdb.set_trace()
 
@@ -165,7 +170,7 @@ class VqaDataset(Dataset):
         question_sentence = self._vqa.questions['questions'][idx]['question']
         answer_sentences = [ans['answer'] for ans in self._vqa.qa[question_id_from_idx]['answers']]
 
-        # import ipdb; ipdb.set_trace()
+        # import pdb; pdb.set_trace()
 
         ############
 
@@ -189,20 +194,32 @@ class VqaDataset(Dataset):
 
         ############ 1.9 TODO
         # load and encode the question and answers, convert to torch tensors
-        question_encoding = torch.zeros(26,5746)
-        answer_encoding = torch.zeros(10,5216)
+        question_encoding = torch.zeros(self._max_question_length, self.question_word_list_length)
+        answer_encoding = torch.zeros(10,self.answer_list_length)
 
         question_word_list = self._create_word_list(question_sentence)
-        for idx, word in enumerate(question_word_list):
-            if idx >= self._max_question_length:
+        # print(idx,question_word_list)
+        # print(len(self.question_word_to_id_map.keys()))
+        # quit()
+        for i, word in enumerate(question_word_list):
+            # import ipdb; ipdb.set_trace()
+            # print(i,word)
+            # quit()
+            if i >= self._max_question_length:
                 break
-            map_idx = self.question_word_to_id_map[word]
-            question_encoding[idx][map_idx] = 1
+            if word not in self.question_word_to_id_map.keys():
+                map_idx = self.unknown_question_word_index
+            else:
+                map_idx = self.question_word_to_id_map[word]
+            question_encoding[i][map_idx] = 1
 
         # answer_sentence_list = self._create_word_list(answer_sentences)
-        for idx, answer in enumerate(answer_sentences):
-            map_idx = self.answer_to_id_map[answer]
-            answer_encoding[idx][map_idx] = 1
+        for i, answer in enumerate(answer_sentences):
+            if answer not in self.answer_to_id_map.keys():
+                map_idx = self.unknown_answer_index
+            else:
+                map_idx = self.answer_to_id_map[answer]
+            answer_encoding[i][map_idx] = 1
         
         data = {'image':image, 'question':question_encoding, 'answer':answer_encoding}
         return data
