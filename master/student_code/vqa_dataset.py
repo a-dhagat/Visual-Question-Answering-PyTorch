@@ -188,6 +188,7 @@ class VqaDataset(Dataset):
         truncated_image_id_from_idx = image_id_from_idx_string[-12:]
         img_file_path = self._image_dir + '/' + self._image_filename_pattern.format(truncated_image_id_from_idx)
         image = Image.open(img_file_path)
+        image = image.convert("RGB")
         image = self._transform(image)
         ############
         # raise NotImplementedError()
