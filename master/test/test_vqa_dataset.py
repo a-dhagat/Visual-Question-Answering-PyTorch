@@ -44,8 +44,11 @@ class TestVqaDataset(unittest.TestCase):
                                  image_dir=current_dir,
                                  image_filename_pattern="COCO_train2014_{}.jpg")
         dataset_loader = DataLoader(vqa_dataset, batch_size=2)
-
+        print(len(dataset_loader))
+        import ipdb; ipdb.set_trace()
         # Act & Assert - the test will fail if iterating through the data loader fails
+        # import ipdb; ipdb.set_trace()
         for id, data in enumerate(dataset_loader):
             # Not doing anything here. Feel free to fill this in, if you like.
-            pass
+            self.assertEqual(len(data), 3)
+            # pass
