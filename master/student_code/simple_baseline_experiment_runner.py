@@ -2,6 +2,8 @@ from student_code.simple_baseline_net import SimpleBaselineNet
 from student_code.experiment_runner_base import ExperimentRunnerBase
 from student_code.vqa_dataset import VqaDataset
 from torchvision import transforms
+import torch
+import torch.nn as nn
 
 
 class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
@@ -48,12 +50,29 @@ class SimpleBaselineExperimentRunner(ExperimentRunnerBase):
         super().__init__(train_dataset, val_dataset, model, batch_size, num_epochs, num_data_loader_workers)
 
         ############ 2.5 TODO: set up optimizer
+        self.optim = torch.optim.SGD([
+                                    {'params':model.word_embeddings.parameters(),'lr':0.8,'momentum':0.9},
+                                    {'params':model.softmax_layer.parameters(),'lr':0.01,'momentum':0.9}
+                                    ])
 
         ############
 
 
     def _optimize(self, predicted_answers, true_answer_ids):
         ############ 2.7 TODO: compute the loss, run back propagation, take optimization step.
+        self.optim.zero_grad()
+        loss = self.loss_obj(predicted_answers, true_answer_ids)
+        loss.backward()
+        # torch.nn.utils.clip_grad_norm(mdl_sgd.parameters(),clip)
+        self._model.word_embeddings[0].weight.data.clamp(1500)
+        self._model.softmax_layer[0].weight.data.clamp(20)
+        nn.utils.clip_grad_norm_(self._model.parameters(),20)
+        # torch.clamp(word_embeddings.parameters.weight)
+        # clip_grad_norm(parameters(), 20)
 
+        # nn.utils.clip_grad_value_(self._model.word_embeddings,1500)
+        # nn.utils.clip_grad_value_(self._model.softmax_layer,20)
+        self.optim.step()
+        return loss
         ############
-        raise NotImplementedError()
+        # raise NotImplementedError()
