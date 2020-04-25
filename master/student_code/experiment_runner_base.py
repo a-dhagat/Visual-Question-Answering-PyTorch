@@ -91,7 +91,8 @@ class ExperimentRunnerBase(object):
                 ############ 2.9 TODO
                 # you probably want to plot something here
                 # if iters==1:
-                idx = np.random.choice(self._batch_size,1)
+                # import ipdb; ipdb.set_trace()
+                idx = np.random.choice(batch_data['question'].shape[0]-1,1)
                 binary_question = batch_data['question'][idx]
                 word_question = ''
                 for i in binary_question.squeeze():
