@@ -34,10 +34,11 @@ def googlenet(pretrained=False, **kwargs):
 
 class GoogLeNet(nn.Module):
 
-    def __init__(self, num_classes=1000, aux_logits=True, transform_input=False, init_weights=True):
+    def __init__(self, num_classes=1000, aux_logits=True, transform_input=False, init_weights=True, img_feat=False):
         super(GoogLeNet, self).__init__()
         self.aux_logits = aux_logits
         self.transform_input = transform_input
+        self.img_feat = img_feat
 
         self.conv1 = BasicConv2d(3, 64, kernel_size=7, stride=2, padding=3)
         self.maxpool1 = nn.MaxPool2d(3, stride=2, ceil_mode=True)
@@ -133,6 +134,8 @@ class GoogLeNet(nn.Module):
         # N x 1024 x 1 x 1
         x = x.view(x.size(0), -1)
         # N x 1024
+        if self.img_feat:
+            return x
         x = self.dropout(x)
         x = self.fc(x)
         # N x 1000 (num_classes)
